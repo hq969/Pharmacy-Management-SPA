@@ -1,127 +1,211 @@
-# 💊 Pharmacy Management SPA
+# 💊 Pharmacy Management System (SPA)
 
-A lightweight **Single Page Application (SPA)** built using **.NET Core Web API and JavaScript** to manage pharmacy inventory, track medicines, and monitor expiry status efficiently.
+A full-stack **Single Page Application (SPA)** to manage medicines and sales records, built using **ASP.NET Core Web API** and **React.js**, with lightweight **JSON-based storage**.
 
 ---
 
 ## 🚀 Features
 
-* 📋 View all medicines in a structured grid
-* ➕ Add new medicine records
-* 🔍 Search medicines by name *(real-time filtering)*
-* ⚠️ Smart visual indicators:
+### 📦 Medicine Management
 
-  * 🔴 **Red** → Expiry date less than 30 days
-  * 🟡 **Yellow** → Quantity less than 10
-* 💾 Persistent storage using JSON file
-* ⚡ Fast and simple SPA (no page reload)
+* Add new medicines
+* View medicines in a structured grid
+* Store medicine details including:
+
+  * Name
+  * Notes
+  * Expiry Date
+  * Quantity
+  * Price
+  * Brand
+
+### 🎨 Smart UI Indicators
+
+* 🔴 **Red Highlight** → Medicines expiring within 30 days
+* 🟡 **Yellow Highlight** → Low stock (Quantity < 10)
+
+### 🔍 Search Functionality
+
+* Search medicines by name (real-time filtering)
+
+### 🛒 Sales Tracking
+
+* Record medicine sales
+* Automatic stock deduction
+* Maintain sales history
 
 ---
 
 ## 🏗️ Tech Stack
 
-| Layer        | Technology            |
-| ------------ | --------------------- |
-| Backend      | .NET Core Web API     |
-| Frontend     | HTML, CSS, JavaScript |
-| Storage      | JSON File (data.json) |
-| Architecture | REST API + SPA        |
+| Layer             | Technology           |
+| ----------------- | -------------------- |
+| Frontend          | React.js             |
+| Backend           | ASP.NET Core Web API |
+| Storage           | JSON (File-based)    |
+| API Communication | REST                 |
+| Containerization  | Docker               |
 
 ---
 
-## 📂 Project Structure
+## 📁 Project Structure
 
 ```
-Pharmacy-Management-SPA/
+pharmacy-management-system/
 │
-├── backend/PharmacyApi/
-│   ├── Controllers/
-│   ├── Models/
-│   ├── Services/
-│   ├── wwwroot/
-│   ├── Program.cs
-│   └── data.json
+├── backend/
+│   ├── src/PharmacyAPI/
+│   │   ├── Controllers/
+│   │   ├── Models/
+│   │   ├── Services/
+│   │   ├── DTOs/
+│   │   ├── Middleware/
+│   │   ├── Data/
+│   │   └── Program.cs
+│   │
+│   └── tests/
 │
-├── docs/
-├── frontend/ (optional)
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── utils/
+│   │   └── styles/
+│
 └── README.md
 ```
 
 ---
 
-## ⚙️ Installation & Setup
+## ⚙️ Setup Instructions
 
-### 1️⃣ Clone Repository
+### 🔧 Prerequisites
+
+* .NET SDK (6 or above)
+* Node.js (v16+)
+* npm
+
+---
+
+## ▶️ Run Backend
 
 ```bash
-git clone https://github.com/hq969/Pharmacy-Management-SPA.git
-cd Pharmacy-Management-SPA/backend/PharmacyApi
-```
-
-### 2️⃣ Run Application
-
-```bash
+cd backend/src/PharmacyAPI
 dotnet run
 ```
 
-### 3️⃣ Open in Browser
+Backend will run at:
 
 ```
-https://localhost:<port>/index.html
+http://localhost:5000
 ```
 
 ---
 
-## 📡 API Endpoints
+## ▶️ Run Frontend
 
-| Method | Endpoint      | Description         |
-| ------ | ------------- | ------------------- |
-| GET    | /api/medicine | Fetch all medicines |
-| POST   | /api/medicine | Add new medicine    |
+```bash
+cd frontend
+npm install
+npm start
+```
 
----
+Frontend will run at:
 
-## 🧠 Business Logic
-
-* Expiry Alert:
-
-  * Medicines expiring within **30 days** are highlighted in **red**
-* Low Stock Alert:
-
-  * Medicines with **quantity < 10** are highlighted in **yellow**
-* Price formatting:
-
-  * Always stored and displayed with **2 decimal precision**
+```
+http://localhost:3000
+```
 
 ---
 
-## 📸 Screenshots
+## 🔗 Environment Configuration
 
-> Add screenshots of UI here for better presentation
+Create `.env` file in frontend:
+
+```
+REACT_APP_API_URL=http://localhost:5000
+```
 
 ---
 
-## 🔮 Future Enhancements
+## 🔄 API Endpoints
 
-* 🧾 Sales & Billing Module
-* 🗄️ Database Integration (SQL Server / PostgreSQL)
-* 🔐 Authentication & Authorization (JWT)
-* ⚛️ React Frontend Upgrade
-* ☁️ Cloud Deployment (AWS / Azure)
-* 🤖 AI-based Demand Prediction
+### Medicines
+
+| Method | Endpoint       | Description       |
+| ------ | -------------- | ----------------- |
+| GET    | /api/medicines | Get all medicines |
+| POST   | /api/medicines | Add new medicine  |
+
+### Sales
+
+| Method | Endpoint            | Description   |
+| ------ | ------------------- | ------------- |
+| POST   | /api/medicines/sale | Record a sale |
+
+---
+
+## 🧪 Sample API Request
+
+### Add Medicine
+
+```json
+{
+  "fullName": "Paracetamol",
+  "notes": "Pain relief",
+  "expiryDate": "2026-04-01",
+  "quantity": 5,
+  "price": 20.5,
+  "brand": "ABC Pharma"
+}
+```
+
+---
+
+## 📊 Business Logic
+
+* Prevents sale if stock is insufficient
+* Automatically updates inventory after each sale
+* Highlights critical medicines visually (expiry/low stock)
+
+---
+
+## 🐳 Docker Support (Optional)
+
+```bash
+docker-compose up --build
+```
+
+---
+
+## 📌 Future Enhancements
+
+* JWT Authentication & Role-based access
+* Database integration (SQL / MongoDB)
+* Pagination & Sorting
+* Dashboard with analytics
+* AI-based demand prediction
+* Cloud deployment (AWS / Azure)
+
+---
+
+## 🧠 Key Learnings
+
+* Full-stack SPA architecture
+* REST API design
+* File-based persistence
+* Component-based frontend design
+* Real-time UI updates
 
 ---
 
 ## 👨‍💻 Author
 
 **Harsh Sonkar**
-AI Engineer | Data Engineer | Full Stack Developer
 
----
-
-## 📜 License
-
-This project is licensed under the MIT License.
+* Data Engineer | AI/ML Engineer | Full Stack Developer
+* Skilled in Python, AWS, React, .NET, and Data Engineering
 
 ---
 
