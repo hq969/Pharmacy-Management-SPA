@@ -1,32 +1,54 @@
 using Microsoft.AspNetCore.Mvc;
-using PharmacyApi.Models;
-using PharmacyApi.Services;
-using System.Linq;
+using PharmacyAPI.DTOs;
+using PharmacyAPI.Models;
+using PharmacyAPI.Services;
 
-namespace PharmacyApi.Controllers
+namespace PharmacyAPI.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class MedicinesController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class MedicineController : ControllerBase
+    private readonly JsonDataService _service;
+
+    public MedicinesController(JsonDataService service)
     {
-        private readonly JsonDataService _service = new JsonDataService();
+        _service = service;
+    }
 
-        [HttpGet]
-        public IActionResult Get()
+    [HttpGet]
+    public IActionResult GetAll()
+    {
+        return Ok(_service.GetMedicines());
+    }
+
+    [HttpPost]
+    public IActionResult Add([FromBody] MedicineDto dto)
+    {
+        var med = new Medicine
         {
-            return Ok(_service.GetAll());
-        }
+            FullName = dto.FullName,
+            Notes = dto.Notes,
+            ExpiryDate = dto.ExpiryDate,
+            Quantity = dto.Quantity,
+            Price = dto.Price,
+            Brand = dto.Brand
+        };
 
-        [HttpPost]
-        public IActionResult Add([FromBody] Medicine medicine)
+        _service.AddMedicine(med);
+        return Ok("Medicine added");
+    }
+
+    [HttpPost("sale")]
+    public IActionResult Sale([FromBody] SaleDto dto)
+    {
+        var sale = new Sale
         {
-            var list = _service.GetAll();
-            medicine.Id = list.Count > 0 ? list.Max(x => x.Id) + 1 : 1;
+            MedicineId = dto.MedicineId,
+            QuantitySold = dto.QuantitySold
+        };
 
-            list.Add(medicine);
-            _service.Save(list);
-
-            return Ok(medicine);
-        }
+        _service.RecordSale(sale);
+        return Ok("Sale recorded");
     }
 }
