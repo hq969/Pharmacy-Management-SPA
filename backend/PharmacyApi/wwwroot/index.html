@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pharmacy App</title>
+    <style>
+        body { font-family: Arial; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid black; padding: 8px; }
+        .red { background-color: #ffcccc; }
+        .yellow { background-color: #fff3cd; }
+    </style>
+</head>
+<body>
+
+<h2>Medicine List</h2>
+<input type="text" id="search" placeholder="Search medicine" onkeyup="loadData()" />
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Expiry</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Brand</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+
+<h2>Add Medicine</h2>
+<input id="name" placeholder="Name"><br>
+<input id="notes" placeholder="Notes"><br>
+<input id="expiry" type="date"><br>
+<input id="qty" type="number"><br>
+<input id="price" type="number" step="0.01"><br>
+<input id="brand" placeholder="Brand"><br>
+<button onclick="addMedicine()">Add</button>
+
+<script>
+const api = "/api/medicine";
+
+async function loadData() {
+    const res = await fetch(api);
+    let data = await res.json();
+
+    const search = document.getElementById("search").value.toLowerCase();
+    data = data.filter(m => m.fullName.toLowerCase().includes(search));
+
+    const tbody = document.getElementById("tbody");
+    tbody.innerHTML = "";
+
+    data.forEach(m => {
+        const tr = document.createElement("tr");
+
+        const expiry = new Date(m.expiryDate);
+        const today = new Date();
+        const diff = (expiry - today) / (1000 * 60 * 60 * 24);
+
+        if (diff < 30) tr.classList.add("red");
+        else if (m.quantity < 10) tr.classList.add("yellow");
+
+        tr.innerHTML = `
+        <td>${m.fullName}</td>
+        <td>${m.expiryDate.split('T')[0]}</td>
+        <td>${m.quantity}</td>
+        <td>${m.price.toFixed(2)}</td>
+        <td>${m.brand}</td>`;
+
+        tbody.appendChild(tr);
+    });
+}
+
+async function addMedicine() {
+    const medicine = {
+        fullName: document.getElementById("name").value,
+        notes: document.getElementById("notes").value,
+        expiryDate: document.getElementById("expiry").value,
+        quantity: parseInt(document.getElementById("qty").value),
+        price: parseFloat(document.getElementById("price").value),
+        brand: document.getElementById("brand").value
+    };
+
+    await fetch(api, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(medicine)
+    });
+
+    loadData();
+}
+
+loadData();
+</script>
+
+</body>
+</html>
