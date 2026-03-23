@@ -1,30 +1,63 @@
-using System.Collections.Generic;
-using System.IO;
 using System.Text.Json;
-using PharmacyApi.Models;
+using PharmacyAPI.Models;
 
-namespace PharmacyApi.Services
+namespace PharmacyAPI.Services;
+
+public class JsonDataService
 {
-    public class JsonDataService
+    private readonly string medFile = "Data/medicines.json";
+    private readonly string salesFile = "Data/sales.json";
+
+    public List<Medicine> GetMedicines()
     {
-        private readonly string _filePath = "data.json";
+        if (!File.Exists(medFile))
+            return new List<Medicine>();
 
-        public List<Medicine> GetAll()
+        var json = File.ReadAllText(medFile);
+        return JsonSerializer.Deserialize<List<Medicine>>(json) ?? new List<Medicine>();
+    }
+
+    public void SaveMedicines(List<Medicine> medicines)
+    {
+        var json = JsonSerializer.Serialize(medicines, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(medFile, json);
+    }
+
+    public void AddMedicine(Medicine med)
+    {
+        var meds = GetMedicines();
+        med.Id = Guid.NewGuid().ToString();
+        meds.Add(med);
+        SaveMedicines(meds);
+    }
+
+    public void RecordSale(Sale sale)
+    {
+        var meds = GetMedicines();
+        var med = meds.FirstOrDefault(m => m.Id == sale.MedicineId);
+
+        if (med == null)
+            throw new Exception("Medicine not found");
+
+        if (med.Quantity < sale.QuantitySold)
+            throw new Exception("Insufficient stock");
+
+        med.Quantity -= sale.QuantitySold;
+        SaveMedicines(meds);
+
+        List<Sale> sales = new();
+
+        if (File.Exists(salesFile))
         {
-            if (!File.Exists(_filePath)) return new List<Medicine>();
-
-            var json = File.ReadAllText(_filePath);
-            return JsonSerializer.Deserialize<List<Medicine>>(json) ?? new List<Medicine>();
+            sales = JsonSerializer.Deserialize<List<Sale>>(File.ReadAllText(salesFile)) ?? new List<Sale>();
         }
 
-        public void Save(List<Medicine> medicines)
-        {
-            var json = JsonSerializer.Serialize(medicines, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
+        sale.Id = Guid.NewGuid().ToString();
+        sale.SaleDate = DateTime.Now;
 
-            File.WriteAllText(_filePath, json);
-        }
+        sales.Add(sale);
+
+        File.WriteAllText(salesFile,
+            JsonSerializer.Serialize(sales, new JsonSerializerOptions { WriteIndented = true }));
     }
 }
